@@ -24,6 +24,7 @@ from factest.synthesis.factest_base_gurobi import dynamic_FACTEST_gurobi
 from factest.synthesis.omega_factest_z3 import hybrid_from_ltl
 from models.dubins_plane import dubins_plane
 from models.dubins_car import dubins_car
+from models.dynamic_dubins_car import dynamic_planar_dubins
 #TODO: Need to make a 3d testing file
 
 ## Import plotting stuff ##
@@ -36,7 +37,7 @@ from factest.plotting.plot_polytopes import plotPoly
 #########################
 to_test = "plane"
 to_test = "dynamic_simulation"
-to_test = "omega"
+# to_test = "omega"
 
 #############################
 # TESTING FOR DUBIN'S PLANE #
@@ -75,7 +76,8 @@ if to_test == "plane":
 elif to_test == "dynamic_simulation":
     print('testing dynamic simulation')
 
-    model = dubins_car()
+    # model = dubins_car()
+    model = dynamic_planar_dubins()
 
     A = np.array([[-1, 0],
                     [ 1, 0],
@@ -100,7 +102,9 @@ elif to_test == "dynamic_simulation":
 
     model.set_timed_ref(xref)
 
-    initial_state = [0.5,0.5,0]
+    # initial_state = [0.5,0.5,0]
+    initial_state = [0.5,0.5,0,0,0]
+
     T = xref[-1][-1]
 
     states = model.run_simulation(xref, initial_state, T, vref = 1, sim_type = "timed")
