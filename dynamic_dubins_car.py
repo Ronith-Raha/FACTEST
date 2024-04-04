@@ -102,8 +102,8 @@ def errorDynamics(error_state, t):
         ref_state1 = ref_traj(t)
         ref_input1 = ref_input(t)
         err_x,err_y,err_heading,err_vl,err_turning = error_state
-        ref_x,ref_y,ref_heading,ref_vl,ref_turning - ref_state1
-	state =[err_x+ref_x,err_y+ref_y,err_heading+ref_heading, err_vl+ref_vl, err_turning+ref_turning]
+        ref_x,ref_y,ref_heading,ref_vl,ref_turning = ref_state1
+        state =[err_x+ref_x,err_y+ref_y,err_heading+ref_heading, err_vl+ref_vl, err_turning+ref_turning]
         input = trackingController(state, ref_state1, ref_input1)
         xdot, ydot, headingdot, veldot, turningdot = dynamics(state, t, input)
         xdot1, ydot1, headingdot1, veldot1, turningdot1 = dynamics(ref_state1, t, ref_input1)
