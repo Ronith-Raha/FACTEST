@@ -29,8 +29,8 @@ def ref_traj(t):
 	y_initial =0
 	heading_initial=0
 	ref_turning =0
-	x_ref =x_initial + t*velocity
-	y_ref=y_initial +t*velocity
+	x_ref =x_initial + t*velocity*cos(heading_initial)
+	y_ref=y_initial +t*velocity*sin(heading_initial)
 	heading_ref = heading_initial
 	return [x_ref, y_ref, heading_ref, velocity, ref_turning]
 
@@ -38,8 +38,8 @@ def ref_traj(t):
 def ref_input(t):
 	res =[]
 	k = 100  # Damping coefficient from the dynamics
-	con_velocity = velocity
-	force = k * con_velocity
+	con_velocity = 0
+	force = 0
 	return [force,con_velocity]
 	
 # Now ref_traj and ref_input are ready to be used in your simulations or functions
@@ -97,18 +97,20 @@ def controlledDynamics(state, t):
 
         return [xdot, ydot, headingdot, veldot, turningdot]
 
-def errorDynamics(state, t):
-        ref_idx = ceil(t/dt)
+def errorDynamics(error_state, t):
         res =[]
-        ref_state1 = ref_traj(ref_idx)
-        ref_input1 = ref_input(ref_idx)
+        ref_state1 = ref_traj(t)
+        ref_input1 = ref_input(t)
+        err_x,err_y,err_heading,err_vl,err_turning = error_state
+        ref_x,ref_y,ref_heading,ref_vl,ref_turning - ref_state1
+	state =[err_x+ref_x,err_y+ref_y,err_heading+ref_heading, err_vl+ref_vl, err_turning+ref_turning]
         input = trackingController(state, ref_state1, ref_input1)
         xdot, ydot, headingdot, veldot, turningdot = dynamics(state, t, input)
         xdot1, ydot1, headingdot1, veldot1, turningdot1 = dynamics(ref_state1, t, ref_input1)
         res =[xdot-xdot1,ydot-ydot1,headingdot-headingdot1,veldot-veldot1,turningdot-turningdot1]
         return res
 
-def run_simulation( initial_state, T, dt):
+def run_simulation(initial_state, T, dt):
 	number_p = int(np.ceil(T/dt))
 	T = float(T)
 	t = [i*dt for i in range(0,number_p)]
@@ -116,8 +118,8 @@ def run_simulation( initial_state, T, dt):
 		t.append(T)
 	newt = []
 	for step in t:
-		newt.append(format(step, '.2f')
-	#t = newt
+		newt.append(float(format(step, '.2f')))
+	t = newt
 	x_init = initial_state[0]
 	y_init = initial_state[1]
 	head_init = initial_state[2]
@@ -129,7 +131,7 @@ def run_simulation( initial_state, T, dt):
 	trace = []
 	for i in range(len(newt)):
 		tmp =[]
-		tmp.append(newt[i])
+		tmp.append(t[i])
 		tmp.append(sol[i,0])
 		tmp.append(sol[i,1])
 		tmp.append(sol[i,2])
