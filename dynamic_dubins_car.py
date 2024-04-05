@@ -10,9 +10,9 @@ from math import sin, cos, tan, atan, pi, sqrt, ceil
 def initialize_reference_trajectory_and_input():
 	global k,T,dt,length,G,kappa,velocity
 	G = 100
-	kappa = 10
+	kappa = 0.1
 	length = 1
-	dt = 1 # Timestep
+	dt = 0.1 # Timestep
 	#T = 10 # Total time for this part of the motion
 	velocity = 2 # Constant velocity
 	k = 100 # Damping coefficient from the dynamics

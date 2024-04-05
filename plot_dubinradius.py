@@ -49,17 +49,11 @@ else:
 
 model.load_state_dict(torch.load(args.pretrained)['state_dict'])
 
-def ellipsoid_surface_2D(P):
-    K = 100
-    thetas = np.linspace(0, 2 * np.pi, K)
-    points = []
-    for i, theta in enumerate(thetas):
-        point = np.array([np.cos(theta), np.sin(theta)])
-        points.append(point)
-    points = np.array(points)
-    sub_P = P[:2,:2]
-    points = np.linalg.inv(sub_P).dot(points.T)
-    return points[0,:], points[1,:]
+def ellipsoid_radii(P_tensor):
+    P = P_tensor.detach().numpy()
+    eigenvalues = np.linalg.eigvals(P[:2,:2])
+    radii = np.sqrt(eigenvalues)
+    return max(radii), min(radii)
 
 lower = np.array([-10, -10, 0, 0, 0])
 higher = np.array([10, 10, 0, 5, 0])
@@ -78,7 +72,9 @@ ref = config.simulate(config.get_init_center(X0))
 benchmark_name = args.system
 
 reachsets = []
-
+times1 = []
+radii_major = []
+radii_minor = []
 X0_mean, X0_std = config.get_X0_normalization_factor()
 X0 = (X0 - X0_mean) / X0_std
 
@@ -87,10 +83,15 @@ for idx_t in range(1, ref.shape[0]):
     tmp = torch.tensor(X0.tolist()+[ref[idx_t, 0],]).view(1,-1).float()
     if args.use_cuda:
         tmp = tmp.cuda()
-    P = forward(tmp)
+    P_tensor = forward(tmp)
     e = time.time()
-    P = P.squeeze(0)
-    reachsets.append([ref[idx_t, 1:], P.cpu().detach().numpy()])
+    P_tensor = P_tensor.squeeze(0)
+    reachsets.append([ref[idx_t, 1:], P_tensor])
+
+    major, minor = ellipsoid_radii(P_tensor)
+    radii_major.append(major)
+    radii_minor.append(minor)
+    times1.append(ref[idx_t, 0])
 
 SMALL_SIZE = 8
 MEDIUM_SIZE = 10
@@ -107,19 +108,15 @@ plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
 plt.rc('axes', axisbelow=True)
 
 
-plt.figure(figsize=(50,50))
+plt.figure(figsize=(10,5))
 
-plt.plot(ref[:,1],ref[:,2], 'k-', label='Reference Trajectory')
-for reachset in reachsets:
-    center = reachset[0]
-    x,y = ellipsoid_surface_2D(reachset[1])
-    plt.plot(x+center[0],y+center[1], 'r-', alpha=0.5)
-
+plt.plot(times1,radii_major, label='Semi-major Axis')
+#plt.plot(times1, radii_minor, label='Semi-minor Axis')
     
-plt.xlabel('X Coordinates')
-plt.ylabel('Y Coordinates')
-plt.title('Trajectories in X-Y Space')
-plt.legend(loc='best')
+plt.xlabel('Time')
+plt.ylabel('Ellispsoid Radius')
+plt.title('Ellipsoid Radii Over Time')
+plt.legend()
 plt.grid(True)
 # plt.show()
-plt.savefig('dubin.pdf')
+plt.savefig('dubin_radii.pdf')

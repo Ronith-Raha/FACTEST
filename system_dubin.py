@@ -8,8 +8,8 @@ import scipy as scipy
 import scipy.special as sc
 import random
 
-TMAX = 10
-dt = 1
+TMAX = 50
+dt = 0.1
 
 # range of initial states
 
@@ -58,7 +58,7 @@ def sample_x0_uniform(X0):
     return x0
 
 def simulate(x0):
-    return np.array(run_simulation(x0, TMAX,dt))
+    return np.array(run_simulation(x0, sample_t(),dt))
 
 def get_init_center(X0):
     center = X0[:-1]
