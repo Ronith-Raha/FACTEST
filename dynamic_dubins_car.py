@@ -9,7 +9,7 @@ from math import sin, cos, tan, atan, pi, sqrt, ceil
 
 def initialize_reference_trajectory_and_input():
 	global k,T,dt,length,G,kappa,velocity
-	G = 100
+	G = 1000
 	kappa = 0.1
 	length = 1
 	dt = 0.1 # Timestep
@@ -45,57 +45,48 @@ def ref_input(t):
 # Now ref_traj and ref_input are ready to be used in your simulations or functions
 
 def dynamics(state, t, input):
-        x,y,heading,vel,turning = state
-        force,torque = input
-
-        xdot = vel*cos(heading)
-        ydot = vel*sin(heading)
-        headingdot = turning
-        veldot = force - k*vel
-        turningdot = torque - k*turning
-
-        return [xdot, ydot, headingdot, veldot, turningdot]
+	x,y,heading,vel,turning = state
+	force,torque = input
+	xdot = vel*cos(heading)
+	ydot = vel*sin(heading)
+	headingdot = turning
+	veldot = force - k*vel
+	turningdot = torque - k*turning
+	return [xdot, ydot, headingdot, veldot, turningdot]
 
 def trackingController(state, ref_state, ref_input):
-        x,y,heading,vel,turning = state
-        xref,yref,headingref,velref,turningref = ref_state
+	x,y,heading,vel,turning = state
+	xref,yref,headingref,velref,turningref = ref_state
+	aref = 0
+	z1diff = x + length*cos(heading) - (xref + length*cos(headingref))
+	z2diff = y + length*sin(heading) - (yref + length*sin(headingref))
 
-        forceref,torqueref = ref_input
+	gx = z1diff*(G/(1 + np.linalg.norm(np.array([z1diff, z2diff]))))
+	gy = z2diff*(G/(1 + np.linalg.norm(np.array([z1diff, z2diff]))))
 
-        aref = (forceref - k*velref)
+	vx = velref*cos(heading) - length*sin(headingref)*turningref
+	vy = velref*sin(heading) + length*cos(headingref)*turningref
 
-        zx = x + length*cos(heading) - (xref + length*cos(headingref))
-        zy = y + length*sin(heading) - (yref + length*sin(headingref))
+	ax = aref*cos(heading)
+	ay = aref*sin(heading)
 
-        vx = velref*cos(heading) - length*sin(headingref)*turningref
-        vy = velref*sin(heading) + length*cos(headingref)*turningref
+	u1 = ax + k*vx - gx
+	u2 = ay + k*vy - gy
+	f = cos(heading)*(u1 + vel*turning*sin(heading) +length*(turning**2)*cos(heading)) + sin(heading)*(u2 - vel*turning*cos(heading) + length*(turning**2)*sin(heading))
+	tau = (-sin(heading)/length)*(u1 + vel*turning*sin(heading) + length*(turning**2)*cos(heading)) + (cos(heading)/length)*(u2 - vel*turning*cos(heading) + length*(turning**2)*sin(heading))
+	return [f, tau]
 
-        ax = aref*cos(headingref)
-        ay = aref*sin(headingref)
-
-        gx = zx*(G/(1 + np.linalg.norm(np.array([zx, zy]))))
-        gy = zy*(G/(1 + np.linalg.norm(np.array([zx, zy]))))
-
-        ux = ax + k*vx - gx
-        uy = ay + k*vy - gy
-
-        force = cos(heading)*(ux + vel*turning*sin(heading)) + length*(turning**2)*cos(heading) + sin(heading)*(uy - vel*turning*cos(heading) + length*(turning**2)*sin(heading)) + length*turning**2
-        torque = (-sin(heading)/length)*(ux + vel*turning*sin(heading) + length*(turning**2)*cos(heading)) + (cos(heading)/length)*(uy - vel*turning*cos(heading) + length*(turning**2)*sin(heading)) - (vel*turning/length)
-
-        return [force, torque]
-
-def controlledDynamics(state, t):
-        ref_idx = ceil(t/dt)
-        if ref_idx >= len(ref_traj):
-           ref_idx = len(ref_traj)-1
-
-        ref_state = ref_traj[ref_idx]
-        ref_input = ref_input[ref_idx]
-
-        input = trackingController(state, ref_state, ref_input)
+def controlledDynamics(error_state, t):
+        res =[]
+        ref_state1 = ref_traj(t)
+        ref_input1 = ref_input(t)
+        err_x,err_y,err_heading,err_vl,err_turning = error_state
+        ref_x,ref_y,ref_heading,ref_vl,ref_turning = ref_state1
+        state =[err_x+ref_x,err_y+ref_y,err_heading+ref_heading, err_vl+ref_vl, err_turning+ref_turning]
+        input = trackingController(state, ref_state1, ref_input1)
         xdot, ydot, headingdot, veldot, turningdot = dynamics(state, t, input)
-
-        return [xdot, ydot, headingdot, veldot, turningdot]
+        res =[xdot, ydot, headingdot, veldot, turningdot]
+        return res
 
 def errorDynamics(error_state, t):
         res =[]

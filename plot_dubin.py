@@ -10,6 +10,8 @@ from matplotlib import pyplot as plt
 import multiprocessing
 from multiprocessing import Pool
 from dynamic_dubins_car import ref_traj
+from dynamic_dubins_car import ref_input
+from dynamic_dubins_car import dynamics
 import sys
 sys.path.append('systems')
 sys.path.append('.')
@@ -93,11 +95,17 @@ for idx_t in range(1, ref.shape[0]):
     reachsets.append([ref[idx_t, 1:], P.cpu().detach().numpy()])
 T = 50
 dt =0.1
+0
+
 ref_trajectory =[]
 t_p = np.arange(0,T+dt, dt)
 for t in t_p:
+    #ref_state1 = ref_traj(t)
+    #ref_input1 = ref_input(t)
+    #ref_p = dynamics(ref_state1, t, ref_input1)
     ref_p = ref_traj(t)
     ref_trajectory.append(ref_p)
+
 ref_trajectory = np.array(ref_trajectory)
 
 SMALL_SIZE = 8
@@ -118,11 +126,11 @@ plt.rc('axes', axisbelow=True)
 plt.figure(figsize=(50,50))
 
 plt.plot(ref[:,1],ref[:,2], 'k-', label='Actual Trajectory')
-plt.plot(ref_trajectory[:,0], ref_trajectory[:,1], 'g-', label = 'Reference Trajectory')
-for reachset in reachsets:
-    center = reachset[0]
-    x,y = ellipsoid_surface_2D(reachset[1])
-    plt.plot(x+center[0],y+center[1], 'r-', alpha=0.5)
+plt.plot(ref_trajectory[:,0], ref_trajectory[:,1], 'b-', label = 'Reference Trajectory')
+#for reachset in reachsets:
+#    center = reachset[0]
+#    x,y = ellipsoid_surface_2D(reachset[1])
+#    plt.plot(x+center[0],y+center[1], 'r-', alpha=0.5)
 
     
 plt.xlabel('X Coordinates')
