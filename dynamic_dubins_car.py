@@ -2,11 +2,13 @@ import numpy as np
 from scipy.integrate import odeint
 from math import sin, cos, tan, atan, pi, sqrt, ceil
 
-
+import matplotlib.pyplot as plt
 
 # Define these globally if they are to be accessed in functions below
 
-
+#xref = []
+#yref = []
+pos=[]
 def initialize_reference_trajectory_and_input():
 	global k,T,dt,length,G,kappa,velocity
 	G = 1000
@@ -27,8 +29,8 @@ def ref_traj(t):
 	output=[] 
 	x_initial=0
 	y_initial =0
-	heading_initial=0
-	ref_turning =0
+	heading_initial=np.pi/4
+	ref_turning =np.pi/6
 	x_ref =x_initial + t*velocity*cos(heading_initial)
 	y_ref=y_initial +t*velocity*sin(heading_initial)
 	heading_ref = heading_initial
@@ -94,11 +96,14 @@ def errorDynamics(error_state, t):
         ref_input1 = ref_input(t)
         err_x,err_y,err_heading,err_vl,err_turning = error_state
         ref_x,ref_y,ref_heading,ref_vl,ref_turning = ref_state1
+        #xref.append(ref_x)
+        #yref.append(ref_y)
         state =[err_x+ref_x,err_y+ref_y,err_heading+ref_heading, err_vl+ref_vl, err_turning+ref_turning]
         input = trackingController(state, ref_state1, ref_input1)
         xdot, ydot, headingdot, veldot, turningdot = dynamics(state, t, input)
         xdot1, ydot1, headingdot1, veldot1, turningdot1 = dynamics(ref_state1, t, ref_input1)
         res =[xdot-xdot1,ydot-ydot1,headingdot-headingdot1,veldot-veldot1,turningdot-turningdot1]
+        #print(res)
         return res
 
 def run_simulation(initial_state, T, dt):
@@ -117,9 +122,14 @@ def run_simulation(initial_state, T, dt):
 	vel_init = initial_state[3]
 	turn_init = initial_state[4]
 	initial_ode = [x_init,y_init,head_init,vel_init,turn_init]
-	sol = odeint(errorDynamics, initial_ode, newt, hmax=dt)
-
+	sol = odeint(controlledDynamics, initial_ode, newt, hmax=dt)
+	
+	#pos_mag = np.sqrt(sol[:,0]**2 +sol[:,1]**2)
+	#mag = np.linalg.norm(sol, axis=1)
 	trace = []
+	x =[]
+	y =[]
+	pos_mag = []
 	for i in range(len(newt)):
 		tmp =[]
 		tmp.append(t[i])
@@ -128,7 +138,26 @@ def run_simulation(initial_state, T, dt):
 		tmp.append(sol[i,2])
 		tmp.append(sol[i,3])
 		tmp.append(sol[i,4])
+		x.append(sol[i,0])
+		y.append(sol[i,1])
+		#pos_mag.append(np.sqrt(sol[:,0]**2 +sol[:,1]**2))
 		trace.append(tmp)
+	for j in range(len(newt)):
+		a = np.sqrt(x[j]**2+y[j]**2)
+		pos_mag.append(a)
+		pos.append(a)
+	plt.figure(figsize = (8,6))
+	#plt.plot(t,x, label='x magnitudes')
+	#plt.plot(t,y, label='y magnitudes')
+	plt.plot(t,pos_mag, label= 'magnitudes')
+	#plt.plot(x,y, label='Traj')
+	#plt.plot(xref,yref, label = 'Ref traj')
+	plt.title('traj.plot')
+	plt.xlabel('time')
+	plt.ylabel('magnitudes')
+	plt.legend()
+	plt.grid(True)
+	plt.show()
 	return trace
 
 

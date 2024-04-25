@@ -8,13 +8,13 @@ import scipy as scipy
 import scipy.special as sc
 import random
 
-TMAX = 50
+TMAX = 10
 dt = 0.1
 
 # range of initial states
 
-lower = np.array([-10, -10, 0, 0, 0])
-higher = np.array([10, 10, 0, 5, 0])
+lower = np.array([-10, -10, np.pi/4, 0, np.pi/6])
+higher = np.array([10, 10, np.pi/4, 5, np.pi/6])
 
 
 X0_center_range = np.array([lower, higher]).T

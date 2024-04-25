@@ -63,8 +63,8 @@ def ellipsoid_surface_2D(P):
     points = np.linalg.inv(sub_P).dot(points.T)
     return points[0,:], points[1,:]
 
-lower = np.array([-10, -10, 0, 0, 0])
-higher = np.array([10, 10, 0, 5, 0])
+lower = np.array([-10, -10, np.pi/4, 0, np.pi/6])
+higher = np.array([10, 10, np.pi/4, 5, np.pi/6])
 
 X0_center_range = np.array([lower, higher]).T
 X0_r_max = 0.5
@@ -93,44 +93,56 @@ for idx_t in range(1, ref.shape[0]):
     e = time.time()
     P = P.squeeze(0)
     reachsets.append([ref[idx_t, 1:], P.cpu().detach().numpy()])
-T = 50
+T = 30
 dt =0.1
-0
+
 
 ref_trajectory =[]
 t_p = np.arange(0,T+dt, dt)
-for t in t_p:
+act_pos =[]
+
+t = np.array(ref[:,0])
+tt =np.array(ref[1:,0])
+for i in t_p:
     #ref_state1 = ref_traj(t)
     #ref_input1 = ref_input(t)
     #ref_p = dynamics(ref_state1, t, ref_input1)
-    ref_p = ref_traj(t)
+    ref_p = ref_traj(i)
     ref_trajectory.append(ref_p)
 
-ref_trajectory = np.array(ref_trajectory)
+pos_mag = np.linalg.norm(ref[:,1:3],axis =1)
+ 
+
+#ref_trajectory = np.array(ref_trajectory)
 
 SMALL_SIZE = 8
 MEDIUM_SIZE = 10
 BIGGER_SIZE = 13
 HUGE_SIZE = 25
 
-plt.rc('font', size=BIGGER_SIZE)          # controls default text sizes
-plt.rc('axes', titlesize=HUGE_SIZE)     # fontsize of the axes title
-plt.rc('axes', labelsize=15)    # fontsize of the x and y labels
-plt.rc('xtick', labelsize=15)    # fontsize of the tick labels
-plt.rc('ytick', labelsize=15)    # fontsize of the tick labels
-plt.rc('legend', fontsize=10)    # legend fontsize
-plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
-plt.rc('axes', axisbelow=True)
+#plt.rc('font', size=BIGGER_SIZE)          # controls default text sizes
+#plt.rc('axes', titlesize=HUGE_SIZE)     # fontsize of the axes title
+#plt.rc('axes', labelsize=15)    # fontsize of the x and y labels
+#plt.rc('xtick', labelsize=15)    # fontsize of the tick labels3
+#plt.rc('ytick', labelsize=15)    # fontsize of the tick labels
+#plt.rc('legend', fontsize=10)    # legend fontsize
+#plt.rc('figure', titlesize=BIGGER_SIZE)  # fontsize of the figure title
+#plt.rc('axes', axisbelow=True)
 
 
-plt.figure(figsize=(50,50))
+plt.figure(figsize=(10,10))
 
-plt.plot(ref[:,1],ref[:,2], 'k-', label='Actual Trajectory')
-plt.plot(ref_trajectory[:,0], ref_trajectory[:,1], 'b-', label = 'Reference Trajectory')
-#for reachset in reachsets:
-#    center = reachset[0]
-#    x,y = ellipsoid_surface_2D(reachset[1])
-#    plt.plot(x+center[0],y+center[1], 'r-', alpha=0.5)
+plt.plot(t, pos_mag, label='magnitudes of position')
+
+#plt.plot(ref[:,1],ref[:,2], 'k-', label='Actual Trajectory')
+#plt.plot(ref_trajectory[0], ref_trajectory[1], 'b-', label = 'Reference Trajectory')
+
+for reachset in reachsets:
+    center = reachset[0]
+    x,y = ellipsoid_surface_2D(reachset[1])
+    pos = np.sqrt(x**2+y**2)
+    plt.plot(tt+center[0],pos+center[1], 'r-', alpha =0.5)
+   
 
     
 plt.xlabel('X Coordinates')

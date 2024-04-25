@@ -55,8 +55,8 @@ def ellipsoid_radii(P_tensor):
     radii = np.sqrt(eigenvalues)
     return max(radii), min(radii)
 
-lower = np.array([-10, -10, 0, 0, 0])
-higher = np.array([10, 10, 0, 5, 0])
+lower = np.array([-10, -10, np.pi/4, 0, np.pi/6])
+higher = np.array([10, 10, np.pi/4, 5, np.pi/6])
 
 X0_center_range = np.array([lower, higher]).T
 X0_r_max = 0.5
