@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 #xref = []
 #yref = []
 pos=[]
+ref_trajectory1=[]
+x1 =[]
+y1 =[]
 def initialize_reference_trajectory_and_input():
 	global k,T,dt,length,G,kappa,velocity
 	G = 1000
@@ -78,13 +81,12 @@ def trackingController(state, ref_state, ref_input):
 	tau = (-sin(heading)/length)*(u1 + vel*turning*sin(heading) + length*(turning**2)*cos(heading)) + (cos(heading)/length)*(u2 - vel*turning*cos(heading) + length*(turning**2)*sin(heading))
 	return [f, tau]
 
-def controlledDynamics(error_state, t):
+def controlledDynamics(state, t):
         res =[]
         ref_state1 = ref_traj(t)
         ref_input1 = ref_input(t)
-        err_x,err_y,err_heading,err_vl,err_turning = error_state
-        ref_x,ref_y,ref_heading,ref_vl,ref_turning = ref_state1
-        state =[err_x+ref_x,err_y+ref_y,err_heading+ref_heading, err_vl+ref_vl, err_turning+ref_turning]
+        x,y,heading,vl,turning = state
+
         input = trackingController(state, ref_state1, ref_input1)
         xdot, ydot, headingdot, veldot, turningdot = dynamics(state, t, input)
         res =[xdot, ydot, headingdot, veldot, turningdot]
@@ -107,6 +109,10 @@ def errorDynamics(error_state, t):
         return res
 
 def run_simulation(initial_state, T, dt):
+	global ref_trajectory1,x1,y1
+	ref_trajectory =[]
+	x =[]
+	y=[]
 	number_p = int(np.ceil(T/dt))
 	T = float(T)
 	t = [i*dt for i in range(0,number_p)]
@@ -123,12 +129,14 @@ def run_simulation(initial_state, T, dt):
 	turn_init = initial_state[4]
 	initial_ode = [x_init,y_init,head_init,vel_init,turn_init]
 	sol = odeint(controlledDynamics, initial_ode, newt, hmax=dt)
-	
+	t_p = np.arange(0,T+dt, dt)
+	#for i in t_p:
+		#ref_p = ref_traj(i)
+		#ref_trajectory.append(ref_p)
 	#pos_mag = np.sqrt(sol[:,0]**2 +sol[:,1]**2)
 	#mag = np.linalg.norm(sol, axis=1)
 	trace = []
-	x =[]
-	y =[]
+
 	pos_mag = []
 	for i in range(len(newt)):
 		tmp =[]
@@ -141,26 +149,46 @@ def run_simulation(initial_state, T, dt):
 		x.append(sol[i,0])
 		y.append(sol[i,1])
 		#pos_mag.append(np.sqrt(sol[:,0]**2 +sol[:,1]**2))
+		ref_p = ref_traj(i)
+		ref_trajectory.append(ref_p)
 		trace.append(tmp)
 	for j in range(len(newt)):
 		a = np.sqrt(x[j]**2+y[j]**2)
 		pos_mag.append(a)
 		pos.append(a)
+	ref_trajectory= np.array(ref_trajectory)
+	ref_trajectory1 = ref_trajectory
+	x1 =x
+	y1= y
 	plt.figure(figsize = (8,6))
 	#plt.plot(t,x, label='x magnitudes')
 	#plt.plot(t,y, label='y magnitudes')
-	plt.plot(t,pos_mag, label= 'magnitudes')
-	#plt.plot(x,y, label='Traj')
+	#plt.plot(t,pos_mag, label= 'magnitudes')
+	plt.plot(x,y, label='actual trajectory')
+	#plt.plot(ref_trajectory[:,0],ref_trajectory[:,1], label='reference trajectory')
 	#plt.plot(xref,yref, label = 'Ref traj')
-	plt.title('traj.plot')
-	plt.xlabel('time')
-	plt.ylabel('magnitudes')
+	plt.title('trajectory.plot')
+	plt.xlabel('x coordinate')
+	plt.ylabel('y coordinate')
+	#plt.xlabel('time')
+	#plt.ylabel('magnitudes')
 	plt.legend()
 	plt.grid(True)
 	plt.show()
 	return trace
 
+def actualx():
+	xx = np.array(x1)
+	return xx
 
+def actualy():
+	yy = np.array(y1)
+	return yy
+
+def reference():
+	reff = np.array(ref_trajectory1)
+	return reff
+	
     # TODO: Implement error bounds
     # TODO: Implement error dynamics
     # TODO: Implement TC Simulate for error dynamics (Can be used with DryVr)
