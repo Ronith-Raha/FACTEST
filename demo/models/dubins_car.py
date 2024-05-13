@@ -75,7 +75,7 @@ class dubins_car:
 
         
 
-        phi = np.clip(atan(w*self.length/v),-pi/2, pi/2)
+        phi = np.clip(atan(w*self.length/v),-pi, pi)
 
         # input = [v, w]
         input = [v,phi]
@@ -83,7 +83,7 @@ class dubins_car:
         return input
 
     def errBound(self, init_poly, i):
-        err_0 = init_poly.chebR
+        err_0 = init_poly.chebR*sqrt(2)
         err = sqrt(err_0**2 + (4*i)/(self.k2))
         # err = 0.1
         return err
@@ -248,6 +248,26 @@ class dubins_car:
                         curr_buchi_state = potential_transition[1]
             curr_cycle += 1
         
+        return all_states
+
+    def simulate_run(self, initial_state, sample_run, flow_cache, vref = 1):
+        all_states = []
+        for i in range(len(sample_run)-1):
+            flow_dict = flow_cache[sample_run[i]+','+sample_run[i+1]]
+            for flow_id in flow_dict.keys():
+                if flow_dict[flow_id]['poly'].__contains__(np.array(initial_state[:2]).T):
+                    break
+            
+            xref = flow_dict[flow_id]['xref']
+            T = 0
+            for point_idx in range(len(xref)-1):
+                T += np.linalg.norm(np.array(xref[point_idx+1]) - np.array(xref[point_idx]))
+
+            states = self.run_simulation(xref, initial_state, T, vref = vref)
+            initial_state = states[-1]
+            
+            all_states.extend(states)
+
         return all_states
 
     #################################################################################################
