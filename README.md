@@ -99,7 +99,7 @@ factest = FACTEST_gurobi(initial_poly, goal_poly, unsafe_polys, model = None, wo
 | `workspace`        | Polytope          | `None`  | *Optional*: Closed set of positions that the agent must remain in |
 | `seg_max`          | int               | `3`     | Maximum number of segments for the reference trajectories         |
 | `part_max`         | int               | `2`     | Maximum partition depth of the initial set                        |
-| `print_statements` | bool              | `True`  | *Optiona*: Turn print statements on or off                        |
+| `print_statements` | bool              | `True`  | *Optional*: Turn print statements on or off                       |
 
 The controllers are synthesized by running the following command.
 
@@ -119,11 +119,14 @@ where each controller index is a str,
 `'init'` returns the polytope region for which the controller is valid, and
 `'xref'` is the sequence of waypoints that the agent must track.
 
-## Omega-FACTEST
+## Omega-regular synthesis
 
-Omega-FACTEST uses the base version of FACTEST to construct a hybrid automaton.
-We provide the functionality to construct two types of automata: a transition-based Buchi automaton (TBA) and a hybrid automaton.
-
+There are two versions of omega-regular synthesis: Omega-FACTEST and Hybrid-FACTEST.
+Each version uses the base version of FACTEST.
+Omega-FACTEST finds the initial sets and transitions for which the omega-regular specifications can be satisfied. 
+It returns the sequence of waypoints for which the transitions can be simulated.
+Hybrid-FACTEST constructs a hybrid automaton which replicates the exact behavior of the agent.
+Both of these synthesis algorithms are built on top of a transition-based Büchi automaton.
 ### TBA synthesis
 
 A TBA is constructed from a linear temporal logic (LTL) formula defined over some atomic propositions (AP) or letters.
@@ -152,8 +155,55 @@ A TBA has the following properties:
 | `buchi_acceptances` | *not implemented*                                        | *not implemented*                                                                              |
 | `buchi_run`         | dict (keys: 'prefix', 'cycle', entries: list of letters) | Word accepted by TBA. Prefix happens first, cycle repeats infinitely                           |
 
+### Omega-FACTEST
 
-### Hybrid automaton synthesis
+Omega-FACTEST is built using the base version of FACTEST and a TBA.
+It can be instantiated using the following command:
+
+```
+omega_factest = omega_FACTEST(ltl_formula, env, model = None, workspace = None, seg_max = 3, part_max = 1, shrinking_constant = 0.1, max_shrinking_depth = 5, print_statements = False)
+```
+
+| Arg                   | Type                                       | Default | Description |
+| --------------------- | ------------------------------------------ | ------- | ----------- |
+| `ltl_formula`         | str                                        |         | LTL specifications using Spot operators                           |
+| `env`                 | dict (keys: label (str), entries: Polytope)|         | Polytopes and associated labels                                   |
+| `model`               |                                            | `None`  | Agent and tracking controller dynamics                            |
+| `workspace`           | Polytope                                   | `None`  | *Optional*: Closed set of positions that the agent must remain in |
+| `seg_max`             | int                                        | `3`     | Maximum number of segments for the reference trajectories         |
+| `part_max`            | int                                        | `1`     | Maximum partition depth of the initial set                        |
+| `shrinking_constant`  | int                                        | `0.1`   | Amount the initial set is shrunk when controllers cannot be found |
+| `max_shrinking_depth` | int                                        | `5`     | *Optional*: Maximum number of times the initial set is shrunk     |
+| `print_statements`    | bool                                       | `False` | *Optional*: Turn print statements on or off                       |
+
+The omega-FACTEST instance has all the same properties as the TBA, as well as the following additional properties:
+
+| Property                  | Type                                                             | Description |
+| --------------- | -------------------------------------------------------------------------- | ----------- |
+| `flow_cache`    | dict (keys: transition (str), entries: controller dict (from base FACTEST) | Maps each transition to controllers which simulate them |
+| `init_sets`     | dict (keys: state (str), entries: Polytopes)                               | Maps each label to a set of initial positions for which controllers exist to simulate transitions |
+| `terminal_sets` | dict (keys: letter(str), entries: list of tuples (center, radius))         | Maps each label a set of positions where the agent will end |
+
+The flow cache is of the following format:
+```
+flow_cache = {transition0 : {controller_idx0 : {'init' : Polytope,
+                                                 'xref' : [[x0], [x1], ..]},
+                              controller_idx1 : {'init' : Polytope,
+                                                 'xref' : [[x0], [x1], ..]},
+                              ...},
+                transition1 : ...}
+```
+
+An example run of the TBA can be obtained by running the following command:
+
+```
+omega_run = omega_factest.exampleRun(num_cycles = 3)
+```
+
+In practice run returned is finite, but the cycles can be repeated an inifinite number of times for omega-regular behavior.
+The run returned is a list which repeats the cycle the number of time specified by the user.
+
+### Hybrid-FACTEST
 
 A hybrid automaton is constructed from an LTL formula defined over some AP, the environment, and some agent and tracking controller dynamics.
 A hybrid automaton is constructed using the following command:

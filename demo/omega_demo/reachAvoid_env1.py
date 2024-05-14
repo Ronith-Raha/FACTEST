@@ -59,7 +59,6 @@ if __name__=="__main__":
     ltl_formula = reach_str + ' & ' + avoid_str
 
     myBuchi = omega_FACTEST(ltl_formula=ltl_formula,env=env,model=model, workspace=workspace_poly)
-    myBuchi.runOmega()
 
     sample_run = myBuchi.exampleRun()
     print(sample_run)

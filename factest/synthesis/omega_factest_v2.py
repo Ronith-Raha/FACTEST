@@ -346,6 +346,8 @@ class omega_FACTEST(buchi_from_ltl):
             if init_key not in AP_list:
                 del self.init_sets[init_key]
                 del self.terminal_sets[init_key]
+
+        self.runOmega()
     
     def runOmega(self):
         converged = False

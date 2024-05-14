@@ -55,7 +55,6 @@ if __name__=="__main__":
     ltl_formula = 'G (F E1) & G (F E2) & G !O1'
 
     myBuchi = omega_FACTEST(ltl_formula=ltl_formula,env=env,model=model, workspace=workspace_poly)
-    myBuchi.runOmega()
 
     sample_run = myBuchi.exampleRun()
     print(sample_run)
