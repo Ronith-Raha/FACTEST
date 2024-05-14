@@ -319,7 +319,7 @@ class buchi_from_ltl:
 ###############################
 
 class omega_FACTEST(buchi_from_ltl):
-    def __init__(self, ltl_formula, env, model = None, workspace = None, seg_max = 3, part_max = 2, shrinking_constant = 0.1, max_shrinking_depth = 5, print_statements = False) -> None:
+    def __init__(self, ltl_formula, env, model = None, workspace = None, seg_max = 3, part_max = 1, shrinking_constant = 0.1, max_shrinking_depth = 5, print_statements = False) -> None:
         super().__init__(ltl_formula, env)
 
         self.workspace = workspace

@@ -6,9 +6,9 @@
 #######################
 import sys, os
 currFile = os.path.abspath(__file__)
-modelPath = currFile.replace('/demo/omega_demo/reachAvoid_env1.py', '')
+modelPath = currFile.replace('/demo/omega_demo/reachAvoid_env2.py', '')
 sys.path.append(modelPath)
-factestPath = currFile.replace('/demo/omega_demo/reachAvoid_env1.py', '/factest/synthesis')
+factestPath = currFile.replace('/demo/omega_demo/reachAvoid_env2.py', '/factest/synthesis')
 sys.path.append(factestPath)
 
 ## Import Python libraries ##
@@ -33,30 +33,26 @@ if __name__=="__main__":
 
     A = np.array([[-1,0],[1,0],[0,-1],[0,1]])
 
-    b_goal1 = np.array([-5,7,-5,7])
-    b_goal2 = np.array([7,-5,7,-5])
+    b_obstacle = np.array([[-1.5,5.5,-1.3,3.7]])
 
-    b_unsafe1 = np.array([11,-10,11,11])
-    b_unsafe2 = np.array([-10,11,11,11])
-    b_unsafe3 = np.array([11,11,-10,11])
-    b_unsafe4 = np.array([11,11,11,-10])
-    b_unsafe5 = np.array([11,-2,1,1])
-    b_unsafe6 = np.array([-2,11,1,1])
+    b_1 = np.array([-3.7,5.2,-0.2,1.3])
+    b_2 = np.array([-3.7,5.2,-3.7,5.2])
 
-    b_workspace = np.array([10,10,10,10])
+    b_workspace = np.array([0,5.2,0,5.2])
+    # b_workspace2 = np.array([-0.5,5,0,5])
 
-    workspace_poly = pc.Polytope(A, b_workspace)
 
-    E1 = pc.Polytope(A, b_goal1) # goal set 1
-    E2 = pc.Polytope(A, b_goal2) # goal set 2
-    E3 = pc.Polytope(A, b_unsafe5) # unsafe set 1
-    E4 = pc.Polytope(A, b_unsafe6) # unsafe set 2
+    obstacle_poly = pc.Polytope(A,b_obstacle)
 
-    env = {'E1':E1,'E2':E2,'E3':E3,'E4':E4}   
+    goal_poly_1 = pc.Polytope(A,b_1)
+    goal_poly_2 = pc.Polytope(A,b_2)
 
-    reach_str = 'G (F E1) & G (F E2)'
-    avoid_str = 'G !E3 & G !E4'
-    ltl_formula = reach_str + ' & ' + avoid_str
+    workspace_poly = pc.Polytope(A,b_workspace)
+    # workspace_poly2 = pc.Polytope(A,b_workspace2)
+
+    env = {'E1':goal_poly_1,'E2':goal_poly_2,'O1':obstacle_poly}   
+
+    ltl_formula = 'G (F E1) & G (F E2) & G !O1'
 
     myBuchi = omega_FACTEST(ltl_formula=ltl_formula,env=env,model=model, workspace=workspace_poly)
     myBuchi.runOmega()
@@ -64,7 +60,7 @@ if __name__=="__main__":
     sample_run = myBuchi.exampleRun()
     print(sample_run)
 
-    init_poly = env[sample_run[0]]
+    init_poly = myBuchi.init_sets[sample_run[0]]
     print(init_poly.b)
 
     min_x = init_poly.b[0]*-1
@@ -83,11 +79,10 @@ if __name__=="__main__":
     fig = plt.figure()
     
     ax = fig.add_subplot(111)
-    plotPoly(E1,ax,'green')
-    plotPoly(E2,ax,'green')
+    plotPoly(goal_poly_1,ax,'green')
+    plotPoly(goal_poly_2,ax,'green')
 
-    plotPoly(E3,ax,'red')
-    plotPoly(E4,ax,'red')
+    plotPoly(obstacle_poly,ax,'red')
 
     for init_key in myBuchi.init_sets.keys():
         init_poly = myBuchi.init_sets[init_key]

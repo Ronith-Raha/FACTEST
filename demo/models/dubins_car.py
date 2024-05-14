@@ -253,9 +253,7 @@ class dubins_car:
     def simulate_run(self, initial_state, sample_run, flow_cache, init_sets, vref = 1):
         initial_set = init_sets[sample_run[0]]
         if not initial_set.__contains__(np.array(initial_state[:2]).T):
-            print("Initial state is not contained within initial set!")
-            return None
-
+            raise Exception("Initial state is not contained within initial set!")
 
         all_states = []
         for i in range(len(sample_run)-1):
