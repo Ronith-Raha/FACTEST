@@ -319,7 +319,7 @@ class buchi_from_ltl:
 ###############################
 
 class omega_FACTEST(buchi_from_ltl):
-    def __init__(self, ltl_formula, env, model = None, workspace = None, shrinking_constant = 0.1, max_shrinking_depth = 5) -> None:
+    def __init__(self, ltl_formula, env, model = None, workspace = None, seg_max = 3, part_max = 2, shrinking_constant = 0.1, max_shrinking_depth = 5, print_statements = False) -> None:
         super().__init__(ltl_formula, env)
 
         self.workspace = workspace
@@ -330,8 +330,11 @@ class omega_FACTEST(buchi_from_ltl):
             AP_list.append(transition[0][0])
             AP_list.append(transition[1][0])
 
+        self.seg_max = seg_max
+        self.part_max = part_max
         self.shrinking_constant = shrinking_constant
         self.max_shrinking_depth = max_shrinking_depth
+        self.print_statements = print_statements
 
         self.flow_cache = {}
         self.init_sets = copy.deepcopy(env)
@@ -363,7 +366,7 @@ class omega_FACTEST(buchi_from_ltl):
                 goal_poly = self.init_sets[goal_key]
                 avoid = [self.env[avoid_key] for avoid_key in unsafe_keys]
                 
-                factest = FACTEST_Z3(initial_poly, goal_poly, avoid, model=self.model, workspace=self.workspace) #TODO: NEED TO ADD IN THE MODEL STUFF
+                factest = FACTEST_Z3(initial_poly, goal_poly, avoid, model=self.model, workspace=self.workspace, seg_max=self.seg_max, part_max=self.part_max, print_statements=self.print_statements) #TODO: NEED TO ADD IN THE MODEL STUFF
                 final_parts = factest.run()
                 del factest
 

@@ -250,7 +250,13 @@ class dubins_car:
         
         return all_states
 
-    def simulate_run(self, initial_state, sample_run, flow_cache, vref = 1):
+    def simulate_run(self, initial_state, sample_run, flow_cache, init_sets, vref = 1):
+        initial_set = init_sets[sample_run[0]]
+        if not initial_set.__contains__(np.array(initial_state[:2]).T):
+            print("Initial state is not contained within initial set!")
+            return None
+
+
         all_states = []
         for i in range(len(sample_run)-1):
             flow_dict = flow_cache[sample_run[i]+','+sample_run[i+1]]

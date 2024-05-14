@@ -75,7 +75,7 @@ if __name__=="__main__":
     curr_state = [6,6,0]
     rand_init = [np.random.random()*(max_x-min_x)+min_x, np.random.random()*(max_y-min_y)+min_y,0]
 
-    sim_states = model.simulate_run(rand_init, sample_run, myBuchi.flow_cache)
+    sim_states = model.simulate_run(rand_init, sample_run, myBuchi.flow_cache, myBuchi.init_sets)
 
     xsim = [state[0] for state in sim_states]
     ysim = [state[1] for state in sim_states]
