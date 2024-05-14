@@ -6,10 +6,12 @@
 #######################
 import sys, os
 currFile = os.path.abspath(__file__)
-modelPath = currFile.replace('/demo/test_file.py', '')
+modelPath = currFile.replace('/test_files/test_file.py', '')
 sys.path.append(modelPath)
-factestPath = currFile.replace('/demo/test_file.py', '/factest/synthesis')
+factestPath = currFile.replace('/demo/test_files/test_file.py', '')
 sys.path.append(factestPath)
+synthesisPath = currFile.replace('/demo/test_files/test_file.py', '/factest/synthesis')
+sys.path.append(synthesisPath)
 
 ## Import Python libraries ##
 #############################
