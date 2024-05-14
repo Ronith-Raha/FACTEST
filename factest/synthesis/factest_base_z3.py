@@ -45,6 +45,10 @@ class FACTEST_Z3():
             
             self.s.add(row_sum <= b_val)
 
+        goal_center = self.goal_poly.chebXc
+        for j in range(self.dims):
+            self.s.add(self.x_ref_terms[num_segs][j] == goal_center[j])
+
     def add_unsafe_constraints(self, num_segs, err_bounds):
         for seg in range(num_segs):
             err = err_bounds[seg]
@@ -68,15 +72,17 @@ class FACTEST_Z3():
 
                 self.s.add(z3.Or(tuple(obs_constraints)))
 
-    def add_workspace_constraints(self, num_segs):
+    def add_workspace_constraints(self, num_segs, err_bounds):
         try:
             A_workspace = self.workspace.A
             b_workspace = self.workspace.b
 
             for i in range(num_segs+1):
+                err = err_bounds[num_segs-1]
+                
                 for row in range(len(A_workspace)):
                     A_row = A_workspace[row]
-                    b_val = b_workspace[row] #TODO: Need to deal with the bloating
+                    b_val = b_workspace[row] - np.linalg.norm(A_row)*err #TODO: Need to deal with the bloating
 
                     row_sum = 0
                     for j in range(self.dims):
@@ -99,7 +105,7 @@ class FACTEST_Z3():
             self.add_initial_constraints(init_poly)
             self.add_goal_constraints(num_segs, err_bounds)
             self.add_unsafe_constraints(num_segs, err_bounds)
-            self.add_workspace_constraints(num_segs)
+            self.add_workspace_constraints(num_segs, err_bounds)
 
             x_ref = None
             if self.s.check() == z3.sat:

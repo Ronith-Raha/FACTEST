@@ -31,8 +31,8 @@ def partition_polytope(poly,dims):
                 part_ll = pc.reduce(pc.Polytope(A_ll, b_ll))
                 new_polys.append(part_ll)
 
-                A_lr = np.vstack((poly.A, np.vstack((x_less_than, y_less_than))))
-                b_lr = np.hstack((poly.b, np.hstack((x_center, y_center))))
+                A_lr = np.vstack((poly.A, np.vstack((x_greater_than, y_less_than))))
+                b_lr = np.hstack((poly.b, np.hstack((-1*x_center, y_center))))
                 part_lr = pc.reduce(pc.Polytope(A_lr, b_lr))
                 new_polys.append(part_lr)
 
