@@ -7,8 +7,6 @@ import numpy as np
 import polytope as pc
 import copy
 
-from time import time
-
 import random
 
 ####################
@@ -315,8 +313,8 @@ class buchi_from_ltl:
             if state_key in self.transitions_in_dict.keys():
                 for q0 in self.transitions_in_dict[state_key]:
                     for q1 in self.transitions_out_dict[state_key]:
-                        if q0 != q1:
-                            self.all_transitions.append((q0,q1))
+                        # if q0 != q1:
+                        self.all_transitions.append((q0,q1))
 
 ###############################
 # The main omega-FACTEST loop #
@@ -351,20 +349,8 @@ class omega_FACTEST(buchi_from_ltl):
                 del self.init_sets[init_key]
                 del self.terminal_sets[init_key]
 
-        self.num_iters = 0
-        start_time = time()
         self.runOmega()
-        end_time = time()
-
-        print('num iters:', self.num_iters)
-        print('running time:',end_time - start_time)
-
-        num_controllers = 0
-        for key in list(self.flow_cache.keys()):
-            num_controllers += len(self.flow_cache[key])
-
-        print('num controllers:', num_controllers)
-
+    
     def runOmega(self):
         converged = False
         i = 1
@@ -385,7 +371,7 @@ class omega_FACTEST(buchi_from_ltl):
                 goal_poly = self.init_sets[goal_key]
                 avoid = [self.env[avoid_key] for avoid_key in unsafe_keys]
                 
-                factest = FACTEST_Z3(initial_poly, goal_poly, avoid, model=self.model, workspace=self.workspace, seg_max=self.seg_max, part_max=self.part_max, print_statements=False) #TODO: NEED TO ADD IN THE MODEL STUFF
+                factest = FACTEST_Z3(initial_poly, goal_poly, avoid, model=self.model, workspace=self.workspace, seg_max=self.seg_max, part_max=self.part_max, print_statements=self.print_statements) #TODO: NEED TO ADD IN THE MODEL STUFF
                 final_parts = factest.run()
                 del factest
 
@@ -399,8 +385,7 @@ class omega_FACTEST(buchi_from_ltl):
                         self.terminal_sets[goal_key].append((partition_xref, last_err))
 
                     if partition_xref == None:
-                        if self.print_statements:
-                            print("No solution from current",init_key,"to current",goal_key)
+                        print("No solution from current",init_key,"to current",goal_key)
                         new_poly = self.shrinkPolytope(initial_poly)
                         if type(new_poly) == None: # or i >= self.max_shrinking_depth:
                             print('Solution cannot be found!')
@@ -417,15 +402,12 @@ class omega_FACTEST(buchi_from_ltl):
                     self.flow_cache[init_key+','+goal_key] = final_parts
 
             i += 1
-
-        self.num_iters = i
        
         return self.flow_cache
 
     def shrinkPolytope(self, poly):
         try:
-            if self.print_statements:
-                print('Shrinking polytope')
+            print('Shrinking polytope')
             A_matrix = poly.A
             b_vector = poly.b
 

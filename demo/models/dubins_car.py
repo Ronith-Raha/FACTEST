@@ -83,7 +83,7 @@ class dubins_car:
         return input
 
     def errBound(self, init_poly, i):
-        err_0 = init_poly.chebR*sqrt(2)
+        err_0 = init_poly.chebR
         err = sqrt(err_0**2 + (4*i)/(self.k2))
         # err = 0.1
         return err
@@ -257,6 +257,7 @@ class dubins_car:
 
         all_states = []
         for i in range(len(sample_run)-1):
+            print(i)
             flow_dict = flow_cache[sample_run[i]+','+sample_run[i+1]]
             for flow_id in flow_dict.keys():
                 if flow_dict[flow_id]['poly'].__contains__(np.array(initial_state[:2]).T):
@@ -268,7 +269,10 @@ class dubins_car:
                 T += np.linalg.norm(np.array(xref[point_idx+1]) - np.array(xref[point_idx]))
 
             states = self.run_simulation(xref, initial_state, T, vref = vref)
-            initial_state = states[-1]
+            try:
+                initial_state = states[-1]
+            except:
+                print("agent didn't move")
             
             all_states.extend(states)
 
