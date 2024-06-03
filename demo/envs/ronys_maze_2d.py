@@ -62,7 +62,7 @@ O = [O1,O2,O3,O4,O5]#,O6,O7,O8,O9,O10,O11,O12,O13,O14,O15,O16,O17,O18,O19,O20,O2
 #b_goal = np.array([-6.25, 6.75, -4.5, 5.0])
 #G = pc.Polytope(A, b_goal)
 
-b_workspace = np.array([0,12,0,12])
+b_workspace = np.array([1,12,1,12])
 workspace = pc.Polytope(A, b_workspace)
 
 if __name__=="__main__":
