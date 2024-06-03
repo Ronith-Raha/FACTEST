@@ -12,7 +12,7 @@ import numpy as np
 #TODO: Update choices as new environments and models created
 parser = argparse.ArgumentParser()
 parser.add_argument("model", choices=['car']) #TODO: add options as more are created
-parser.add_argument("env", choices=['maze_2d', 'scots_hscc16']) #TODO: add options as more are created
+parser.add_argument("env", choices=['maze_2d', 'scots_hscc16', 'rony_maze']) #TODO: add options as more are created
 parser.add_argument("--solver", choices=['z3', 'yices', 'gurobi'], default='z3')
 parser.add_argument("--segs", type=int, default=10)
 parser.add_argument("--parts", type=int, default=2)
@@ -33,6 +33,8 @@ if args.env == 'maze_2d':
     from demo.envs.maze_2d import Theta, G, O, workspace
 elif args.env == 'scots_hscc16':
     from demo.envs.scots_hscc16 import Theta, G, O, workspace
+elif args.env == 'rony_maze':
+    from demo.envs.ronys_maze_2d import Theta, G, O, workspace
 
 #NOTE: Do not change the rest of this script
 if args.solver == 'yices':
