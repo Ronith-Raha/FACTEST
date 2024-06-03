@@ -108,8 +108,8 @@ if __name__=="__main__":
 
     plotPoly(workspace,ax,'yellow')
 
-    #plotPoly(G,ax,'green')
-    #plotPoly(Theta,ax,'blue')
+    plotPoly(G,ax,'green')
+    plotPoly(Theta,ax,'blue')
     
     i = 1
     for obstacle in O:
