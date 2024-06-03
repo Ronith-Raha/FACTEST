@@ -27,10 +27,10 @@ b16 = np.array([0,0.1,-4,5])
 b17 = np.array([0,6,-4.9,5])
 b18 = np.array([-6.9,7,0,5])
 # Border sets -- keeping for now but may not be used in the future
-# b19 = np.array([0.1,0,0,5])
-# b20 = np.array([-7,7.1,0,5])
-# b21 = np.array([0,7,0.1,0])
-# b22 = np.array([0,7,-5,5.1])
+b19 = np.array([0.1,0,0,5])
+b20 = np.array([-7,7.1,0,5])
+b21 = np.array([0,7,0.1,0])
+b22 = np.array([0,7,-5,5.1])
 
 O1 = pc.Polytope(A, b1)
 O2 = pc.Polytope(A, b2)
@@ -51,10 +51,10 @@ O16 = pc.Polytope(A, b16)
 O17 = pc.Polytope(A, b17)
 O18 = pc.Polytope(A, b18)
 # Border sets -- keeping for now but may not be used in the future
-# O19 = pc.Polytope(A, b19)
-# O20 = pc.Polytope(A, b20)
-# O21 = pc.Polytope(A, b21)
-# O22 = pc.Polytope(A, b22)
+O19 = pc.Polytope(A, b19)
+O20 = pc.Polytope(A, b20)
+O21 = pc.Polytope(A, b21)
+O22 = pc.Polytope(A, b22)
 
 O = [O1,O2,O3,O4,O5,O6,O7,O8,O9,O10,O11,O12,O13,O14,O15,O16,O17,O18] # Border sets: O19,O20,O21,O22]
 
