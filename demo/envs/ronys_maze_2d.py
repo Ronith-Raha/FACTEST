@@ -56,13 +56,13 @@ O5 = pc.Polytope(A, b5)
 
 O = [O1,O2,O3,O4,O5]#,O6,O7,O8,O9,O10,O11,O12,O13,O14,O15,O16,O17,O18,O19,O20,O21,O22]
 
-b_init = np.array([-0.4,0.6,-3.4,3.6])
-Theta = pc.Polytope(A, b_init)
+#b_init = np.array([-0.4,0.6,-3.4,3.6])
+#Theta = pc.Polytope(A, b_init)
 
-b_goal = np.array([-6.25, 6.75, -4.5, 5.0])
-G = pc.Polytope(A, b_goal)
+#b_goal = np.array([-6.25, 6.75, -4.5, 5.0])
+#G = pc.Polytope(A, b_goal)
 
-b_workspace = np.array([0,7,0,5])
+b_workspace = np.array([0,12,0,12])
 workspace = pc.Polytope(A, b_workspace)
 
 if __name__=="__main__":
@@ -79,8 +79,8 @@ if __name__=="__main__":
 
     plotPoly(workspace,ax,'yellow')
 
-    plotPoly(G,ax,'green')
-    plotPoly(Theta,ax,'blue')
+    #plotPoly(G,ax,'green')
+    #plotPoly(Theta,ax,'blue')
     
     i = 1
     for obstacle in O:
