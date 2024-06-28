@@ -56,8 +56,11 @@ if args.plot:
     import matplotlib.pyplot as plt
     from factest.plotting.plot_polytopes import plotPoly
 
+    print('xref', xref)
+
     xref_1 = [xval[0] for xval in xref]
     xref_2 = [xval[1] for xval in xref]
+
 
     # model.run_simulation(xref, 1) #TODO: NEED TO CHANGE THIS TO A UREF
 
